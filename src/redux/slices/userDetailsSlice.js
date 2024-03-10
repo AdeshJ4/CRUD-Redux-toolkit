@@ -13,6 +13,7 @@ export const createUser = createAsyncThunk(
     });
     try {
       const result = await response.json();
+      console.log("result inside createUser : ", result);
       return result;
     } catch (err) {
       return rejectWithValue(err);
@@ -57,25 +58,30 @@ const userDetailSlice = createSlice({
   initialState: { users: [], isLoading: false, error: null }, // users: [{count: 0, customers: Array(5)[{}, {}, ..., {}]}]
   reducers: {},
   extraReducers: (builder) => {
+    // createUser
     builder
       .addCase(createUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(createUser.fulfilled, (state, action) => {
+        console.log("I am inside createUser.fulfilled");
         state.isLoading = false;
-        state.users.push(action.payload);
+        console.log("payload of createUser.fulfilled: ", action.payload);
+        state.users.customers.push(action.payload);
       })
       .addCase(createUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
 
+    // showUser
     builder
       .addCase(showUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(showUser.fulfilled, (state, action) => {
         state.isLoading = false;
+        console.log("action.payload from showUser: ", action.payload);
         state.users = action.payload;
       })
       .addCase(showUser.rejected, (state, action) => {
@@ -83,13 +89,22 @@ const userDetailSlice = createSlice({
         state.error = action.payload;
       });
 
+    // deleteUser
     builder
       .addCase(deleteUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log("delete action: ", action.payload);
+        console.log("action.payload delete: ", action.payload);
+        console.log("state.users: ", state.users);
+        const { id } = action.payload;
+        const { count, customers } = state.users;
+        console.log("count: ", count);
+        console.log("customers: ", customers);
+        if (id) {
+        }
+        console.log("state.users: ", state.users);
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.isLoading = false;

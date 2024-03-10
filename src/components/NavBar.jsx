@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const NavBar = () => {
-  const count = useSelector((state) => state.user.users.count);
+  const count = useSelector((state) => state.user.count);
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">

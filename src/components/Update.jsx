@@ -1,25 +1,34 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { createUser } from "../redux/slices/userDetailsSlice";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { updateUser } from "../redux/slices/userDetailsSlice";
 
-const UserForm = () => {
-  const [users, setUsers] = useState({});
+const Update = () => {
+  const [updatedData, setUpdatedData] = useState();
+  const { users, isLoading } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
-
+  const { id } = useParams();
   const dispatch = useDispatch();
 
-  const getUserData = (e) => {
-    setUsers({ ...users, [e.target.name]: e.target.value });
+  useEffect(() => {
+    if (id) {
+      const singleUser = users.filter((user) => user._id === id);
+      setUpdatedData(singleUser[0]); // singleUser = [{..}]  => setUpdatedData({})
+    }
+  }, []);
+
+  const newData = (e) => {
+    setUpdatedData({ ...updatedData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log("users: ", users);
-    dispatch(createUser(users));
+    dispatch(updateUser(updatedData));
     navigate("/read");
   };
+
+  if (isLoading) return <h1>Loading...</h1>;
 
   return (
     <div>
@@ -32,7 +41,8 @@ const UserForm = () => {
             type="text"
             className="form-control"
             name="name"
-            onChange={getUserData}
+            value={updatedData && updatedData.name}
+            onChange={newData}
           />
         </div>
 
@@ -43,7 +53,8 @@ const UserForm = () => {
             type="email"
             name="email"
             className="form-control"
-            onChange={getUserData}
+            value={updatedData && updatedData.email}
+            onChange={newData}
           />
         </div>
 
@@ -57,7 +68,8 @@ const UserForm = () => {
             className="form-control"
             id="phone"
             name="phone"
-            onChange={getUserData}
+            value={updatedData && updatedData.phone}
+            onChange={newData}
           />
         </div>
 
@@ -67,7 +79,8 @@ const UserForm = () => {
           <select
             className="form-select"
             name="membership"
-            onChange={getUserData}
+            value={updatedData && updatedData.membership}
+            onChange={newData}
           >
             <option value="none">None</option>
             <option value="bronze">Bronze</option>
@@ -83,7 +96,8 @@ const UserForm = () => {
             type="radio"
             name="gender"
             value="Male"
-            onChange={getUserData}
+            checked={updatedData && updatedData.gender === "male"}
+            onChange={newData}
           />
           <label className="form-check-label">Male</label>
         </div>
@@ -93,7 +107,8 @@ const UserForm = () => {
             type="radio"
             name="gender"
             value="Female"
-            onChange={getUserData}
+            checked={updatedData && updatedData.gender === "female"}
+            onChange={newData}
           />
           <label className="form-check-label">Female</label>
         </div>
@@ -107,4 +122,4 @@ const UserForm = () => {
   );
 };
 
-export default UserForm;
+export default Update;

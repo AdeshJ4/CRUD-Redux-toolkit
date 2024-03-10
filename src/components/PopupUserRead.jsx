@@ -3,11 +3,9 @@ import "./PopupUserRead.css";
 import { useSelector } from "react-redux";
 
 const PopupUserRead = ({ id, showPopup, setShowPopup }) => {
-  const allUsers = useSelector((state) => state.user.users.customers);
+  const allUsers = useSelector((state) => state.user.users);
 
   const singleUser = allUsers.filter((user) => user._id === id);
-  console.log(allUsers);
-  console.log(singleUser);
 
   return (
     <div className="modalBackground">

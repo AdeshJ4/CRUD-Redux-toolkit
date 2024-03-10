@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteUser, showUser } from "../redux/slices/userDetailsSlice";
+import { deleteUser, getAllUsers } from "../redux/slices/userDetailsSlice";
 import PopupUserRead from "./PopupUserRead";
 import { Link } from "react-router-dom";
 
 const Read = () => {
   const dispatch = useDispatch();
-  const { users, isLoading } = useSelector((state) => state.user);  
-  const { count, customers } = users;
+  const { users, count, isLoading } = useSelector((state) => state.user);
   const [showPopup, setShowPopup] = useState(false);
   const [id, setId] = useState();
 
   useEffect(() => {
-    dispatch(showUser());
+    dispatch(getAllUsers());
   }, []);
 
   if (isLoading) return <h1>Loading</h1>;
@@ -29,8 +28,8 @@ const Read = () => {
         />
       )}
 
-      {customers &&
-        customers.map((user) => (
+      {users &&
+        users.map((user) => (
           <div
             key={user._id}
             className="card mx-auto w-50 my-2"
@@ -52,8 +51,7 @@ const Read = () => {
                 View
               </button>
 
-              
-              <Link href="#" className="card-link">
+              <Link to={`/edit/${user._id}`} className="card-link">
                 Edit
               </Link>
               <Link

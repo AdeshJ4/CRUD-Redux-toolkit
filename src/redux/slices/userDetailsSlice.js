@@ -1,5 +1,18 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+// get all users
+export const getAllUsers = createAsyncThunk(
+  "getAllUsers",
+  async (args, { rejectWithValue }) => {
+    const response = await fetch("http://localhost:5000/api/customers");
+    try {
+      return await response.json();
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
 // create User
 export const createUser = createAsyncThunk(
   "createUser",
@@ -12,24 +25,31 @@ export const createUser = createAsyncThunk(
       body: JSON.stringify(data),
     });
     try {
-      const result = await response.json();
-      console.log("result inside createUser : ", result);
-      return result;
+      return await response.json();
     } catch (err) {
       return rejectWithValue(err);
     }
   }
 );
 
-// show user
-export const showUser = createAsyncThunk(
-  "showUser",
-  async (args, { rejectWithValue }) => {
-    const response = await fetch("http://localhost:5000/api/customers");
+// update User
+export const updateUser = createAsyncThunk(
+  "updateUser",
+  async (updatedData, { rejectWithValue }) => {
+    const { _id, __v, ...body } = updatedData;
+    const response = await fetch(
+      `http://localhost:5000/api/customers/${updatedData._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }
+    );
     try {
-      const result = await response.json();
-      console.log("result: ", result);
-      return result;
+      console.log("updated data: ", updatedData);
+      return await response.json();
     } catch (err) {
       return rejectWithValue(err);
     }
@@ -44,9 +64,7 @@ export const deleteUser = createAsyncThunk(
       method: "DELETE",
     });
     try {
-      const result = await response.json();
-      console.log("result: ", result);
-      return result;
+      return await response.json();
     } catch (err) {
       return rejectWithValue(err);
     }
@@ -55,36 +73,51 @@ export const deleteUser = createAsyncThunk(
 
 const userDetailSlice = createSlice({
   name: "userDetail",
-  initialState: { users: [], isLoading: false, error: null }, // users: [{count: 0, customers: Array(5)[{}, {}, ..., {}]}]
+  initialState: { users: [], count: 0, isLoading: false, error: null },
   reducers: {},
   extraReducers: (builder) => {
+    // getAllUsers
+    builder
+      .addCase(getAllUsers.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getAllUsers.fulfilled, (state, action) => {
+        const { customers } = action.payload;
+        state.isLoading = false;
+        state.users = customers;
+        state.count = customers.length;
+      })
+      .addCase(getAllUsers.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
     // createUser
     builder
       .addCase(createUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(createUser.fulfilled, (state, action) => {
-        console.log("I am inside createUser.fulfilled");
         state.isLoading = false;
-        console.log("payload of createUser.fulfilled: ", action.payload);
-        state.users.customers.push(action.payload);
+        state.users.push(action.payload);
       })
       .addCase(createUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
 
-    // showUser
+    // updateUser
     builder
-      .addCase(showUser.pending, (state) => {
+      .addCase(updateUser.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(showUser.fulfilled, (state, action) => {
+      .addCase(updateUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log("action.payload from showUser: ", action.payload);
-        state.users = action.payload;
+        state.users = state.users.map((user) =>
+          user._id === action.payload._id ? action.payload : user
+        );
       })
-      .addCase(showUser.rejected, (state, action) => {
+      .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
@@ -96,15 +129,11 @@ const userDetailSlice = createSlice({
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log("action.payload delete: ", action.payload);
-        console.log("state.users: ", state.users);
-        const { id } = action.payload;
-        const { count, customers } = state.users;
-        console.log("count: ", count);
-        console.log("customers: ", customers);
-        if (id) {
+        const { _id } = action.payload;
+        if (_id) {
+          state.users = state.users.filter((user) => user._id !== _id);
+          state.count = state.users.length;
         }
-        console.log("state.users: ", state.users);
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.isLoading = false;

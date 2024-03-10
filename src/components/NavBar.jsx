@@ -1,9 +1,19 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { searchUser } from "../redux/slices/userDetailsSlice";
 
 const NavBar = () => {
   const count = useSelector((state) => state.user.count);
+  const dispatch = useDispatch();
+
+  const [searchData, setSearchData] = useState("");
+
+  useEffect(() => {
+    dispatch(searchUser(searchData));
+  }, [searchData]);
+
+  
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -41,6 +51,7 @@ const NavBar = () => {
               type="search"
               placeholder="Search"
               aria-label="Search"
+              onChange={(e) => setSearchData(e.target.value)}
             />
           </div>
         </div>

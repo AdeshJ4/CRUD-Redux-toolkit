@@ -73,8 +73,18 @@ export const deleteUser = createAsyncThunk(
 
 const userDetailSlice = createSlice({
   name: "userDetail",
-  initialState: { users: [], count: 0, isLoading: false, error: null },
-  reducers: {},
+  initialState: {
+    users: [],
+    count: 0,
+    searchData: [],
+    isLoading: false,
+    error: null,
+  },
+  reducers: {
+    searchUser: (state, action) => {
+      state.searchData = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     // getAllUsers
     builder
@@ -142,5 +152,5 @@ const userDetailSlice = createSlice({
   },
 });
 
-export const {} = userDetailSlice.actions;
+export const { searchUser } = userDetailSlice.actions;
 export default userDetailSlice.reducer;

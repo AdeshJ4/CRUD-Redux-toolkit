@@ -6,7 +6,9 @@ import { Link } from "react-router-dom";
 
 const Read = () => {
   const dispatch = useDispatch();
-  const { users, count, isLoading } = useSelector((state) => state.user);
+  const { users, count, isLoading, searchData } = useSelector(
+    (state) => state.user
+  );
   const [showPopup, setShowPopup] = useState(false);
   const [id, setId] = useState();
 
@@ -29,40 +31,48 @@ const Read = () => {
       )}
 
       {users &&
-        users.map((user) => (
-          <div
-            key={user._id}
-            className="card mx-auto w-50 my-2"
-            style={{ width: "18rem" }}
-          >
-            <div className="card-body">
-              <h5 className="card-title">{user.name}</h5>
-              <h6 className="card-subtitle mb-2 text-muted">{user.email}</h6>
-              <h6 className="card-subtitle mb-2 text-muted">{user.phone}</h6>
-              <h6 className="card-subtitle mb-2 text-muted">{user.gender}</h6>
-              <h6 className="card-subtitle mb-2 text-muted">
-                {user.membership}
-              </h6>
+        users
+          .filter((user) => {
+            if (searchData.length === 0) {
+              return user;
+            } else {
+              return user.name.toLowerCase().includes(searchData.toLowerCase());
+            }
+          })
+          .map((user) => (
+            <div
+              key={user._id}
+              className="card mx-auto w-50 my-2"
+              style={{ width: "18rem" }}
+            >
+              <div className="card-body">
+                <h5 className="card-title">{user.name}</h5>
+                <h6 className="card-subtitle mb-2 text-muted">{user.email}</h6>
+                <h6 className="card-subtitle mb-2 text-muted">{user.phone}</h6>
+                <h6 className="card-subtitle mb-2 text-muted">{user.gender}</h6>
+                <h6 className="card-subtitle mb-2 text-muted">
+                  {user.membership}
+                </h6>
 
-              <button
-                className="card-link"
-                onClick={() => [setId(user._id), setShowPopup(true)]}
-              >
-                View
-              </button>
+                <button
+                  className="card-link"
+                  onClick={() => [setId(user._id), setShowPopup(true)]}
+                >
+                  View
+                </button>
 
-              <Link to={`/edit/${user._id}`} className="card-link">
-                Edit
-              </Link>
-              <Link
-                onClick={() => dispatch(deleteUser(user._id))}
-                className="card-link"
-              >
-                Delete
-              </Link>
+                <Link to={`/edit/${user._id}`} className="card-link">
+                  Edit
+                </Link>
+                <Link
+                  onClick={() => dispatch(deleteUser(user._id))}
+                  className="card-link"
+                >
+                  Delete
+                </Link>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
     </>
   );
 };

@@ -10,6 +10,7 @@ const Read = () => {
     (state) => state.user
   );
   const [showPopup, setShowPopup] = useState(false);
+  const [selectGender, setSelectedGender] = useState("");
   const [id, setId] = useState();
 
   useEffect(() => {
@@ -20,8 +21,41 @@ const Read = () => {
 
   return (
     <>
-      <h2>All Data</h2>
-      <h3>Total Users: {count}</h3>
+      <div className="text-center">
+        <h2>All Data</h2>
+        <h3>Total Users: {count}</h3>
+      </div>
+      <div className="d-flex justify-content-center">
+        <div>
+          <input
+            className="form-check-input"
+            type="radio"
+            name="gender"
+            checked={selectGender === ""}
+            onChange={(e) => setSelectedGender(e.target.value)}
+          />
+          <label className="form-check-label">All</label>
+          <input
+            className="form-check-input"
+            type="radio"
+            name="gender"
+            value="Male"
+            checked={selectGender === "Male"}
+            onChange={(e) => setSelectedGender(e.target.value)}
+          />
+          <label className="form-check-label">Male</label>
+          <input
+            className="form-check-input"
+            type="radio"
+            name="gender"
+            value="Female"
+            checked={selectGender === "Female"}
+            onChange={(e) => setSelectedGender(e.target.value)}
+          />
+          <label className="form-check-label">Female</label>
+        </div>
+      </div>
+
       {showPopup && (
         <PopupUserRead
           id={id}
@@ -36,9 +70,20 @@ const Read = () => {
             if (searchData.length === 0) {
               return user;
             } else {
+              // you can filter by name, email, phone...
               return user.name.toLowerCase().includes(searchData.toLowerCase());
             }
           })
+          .filter((user) => {
+            if (selectGender === "Male") {
+              return user.gender === selectGender.toLowerCase();
+            } else if (selectGender === "Female") {
+              return user.gender === selectGender.toLowerCase();
+            } else {
+              return user;
+            }
+          })
+
           .map((user) => (
             <div
               key={user._id}
